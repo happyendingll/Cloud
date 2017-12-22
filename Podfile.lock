@@ -1,0 +1,23 @@
+PODS:
+  - BmobSDK (2.2.7)
+  - MBProgressHUD (1.1.0)
+  - SDWebImage (4.2.2):
+    - SDWebImage/Core (= 4.2.2)
+  - SDWebImage/Core (4.2.2)
+  - TZImagePickerController (1.9.6)
+
+DEPENDENCIES:
+  - BmobSDK
+  - MBProgressHUD
+  - SDWebImage
+  - TZImagePickerController
+
+SPEC CHECKSUMS:
+  BmobSDK: ed095cac4e0587e85d1ce786dd3762bdf1ba2203
+  MBProgressHUD: e7baa36a220447d8aeb12769bf0585582f3866d9
+  SDWebImage: 89a9d32cd520bbb46eb14e541d5109b3564af198
+  TZImagePickerController: 276dc7c0cc70da9ee354046474b405d87ef81c89
+
+PODFILE CHECKSUM: 65a783356394121784db075fa8d9913593e69cdf
+
+COCOAPODS: 1.3.1
