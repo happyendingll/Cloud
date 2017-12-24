@@ -31,7 +31,7 @@
 @property(nonatomic,strong)NSMutableArray* imageInfoArrs;
 @property(nonatomic,strong)NSMutableArray* imageUrlArrs;
 @property(nonatomic,strong)NSMutableArray* imageArrs;
-//@property(nonatomic,strong)MbHUDuser* hudUser;
+@property(nonatomic,strong)NSMutableDictionary* imageArrsDic;
 @property(nonatomic,strong)NSMutableArray* imageDateInfos;//图片的上传时间NSString数组
 @end
 
@@ -81,8 +81,11 @@
 //    self.navigationItem.leftBarButtonItem = item;
     UIBarButtonItem* rightItem=[[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"refresh"] style:UIBarButtonItemStylePlain target:self action:@selector(realUpdate)];
     self.navigationItem.rightBarButtonItem=rightItem;
-    [self realUpdate];//自动刷新操作
-    [self.photoCollectionView registerClass:[PhotoCollectionViewCell class] forCellWithReuseIdentifier:@"zhiyuanCell"];
+//自动刷新操作
+    [self updateData];//网上更新数据
+    [self performSelector:@selector(addTableView) withObject:nil afterDelay:1.5];//调用self afterDelay方法延迟执行方法
+    
+    //[self.photoCollectionView registerClass:[PhotoCollectionViewCell class] forCellWithReuseIdentifier:@"zhiyuanCell"];
     //[self.view addSubview:self.photoCollectionView];
 }
 
@@ -246,6 +249,11 @@
     }return _imageArrs;
 }
 
+-(NSMutableDictionary*)imageArrsDic{
+    if (!_imageArrsDic) {
+        _imageArrsDic=[[NSMutableDictionary alloc]init];
+    }return _imageArrsDic;
+}
 
 -(NSMutableArray*)imageUrlArrs{
     if (!_imageUrlArrs) {
@@ -327,12 +335,12 @@
     NSString* strUrl=[self.imageUrlArrs objectAtIndex:indexPath.row];
     UIImage *cachedImage = [[SDImageCache sharedImageCache] imageFromDiskCacheForKey:strUrl];//从缓存中查找uiimage
     BOOL currentStated=cell.checkStated;
-    //选中添加到self.imageArrs
+    //选中添加到self.imageArrsDic
     if (currentStated==NO) {
-        [self.imageArrs addObject:cachedImage];
-    }//非选中从self.imageArrs删掉uiimage
+        [self.imageArrsDic setValue:cachedImage forKey:[NSString stringWithFormat:@"%ld",(long)indexPath.row]];
+    }//非选中从self.imageArrsDic删掉uiimage
     else if (currentStated==YES){
-        [self.imageArrs removeObject:cachedImage];
+        [self.imageArrsDic removeObjectForKey:[NSString stringWithFormat:@"%ld",(long)indexPath.row]];
     }
     [cell checkStated:!currentStated];
     [self performSelector:@selector(deselect) withObject:nil afterDelay:0.5f];
@@ -350,25 +358,27 @@
     }
     
 }
-
+-(void)reloadTableViewData{
+    [self.photoTableView reloadData];
+}
 ////收起tableview的方法
 //- (IBAction)closeTableView:(id)sender {
 //        [self.photoTableView removeFromSuperview];
 //}
 
-//自动的刷新操作(真正的刷新操作)
+//手动的刷新操作(真正的刷新操作)
 -(void)realUpdate{
     [self updateData];//网上更新数据
-    [self performSelector:@selector(addTableView) withObject:nil afterDelay:3];//调用self afterDelay方法延迟执行方法
-    //[NSThread sleepForTimeInterval:1];//调用当前线程睡眠一秒再执行的方法
+    //[self performSelector:@selector(addTableView) withObject:nil afterDelay:3];//调用self afterDelay方法延迟执行方法
+    [self performSelector:@selector(reloadTableViewData) withObject:nil afterDelay:1.5];
 
 }
-////手动刷新操作
-//- (IBAction)update:(id)sender {
-//    [self realUpdate];
-//}
 //从网上更新数据
 -(void)updateData{
+    //把之前的数据清空掉
+    [self.imageUrlArrs removeAllObjects];
+    [self.imageInfoArrs removeAllObjects];
+    [self.imageDateInfos removeAllObjects];
     BmobQuery* queue=[BmobQuery queryWithClassName:@"PhotosLibrary"];
     [queue whereKey:@"photosOwner" equalTo:[BmobUser currentUser].username];
     [queue whereKey:@"folder" equalTo:self.VcTitle];
@@ -394,7 +404,8 @@
 //下载事件
 - (IBAction)downloadAction:(id)sender {
     //循环保存到本地相册
-    for (UIImage* image in self.imageArrs) {
+    for (int i=0; i<[self.imageArrsDic allKeys].count; i++) {
+        UIImage* image=[self.imageArrsDic valueForKey:[[self.imageArrsDic allKeys]objectAtIndex:i]];
         UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
     }
 }
