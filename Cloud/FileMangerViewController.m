@@ -15,11 +15,17 @@
 @interface FileMangerViewController ()<UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong)UITableView* fileMangerTableView;
 @property(nonatomic,strong)NSMutableArray* fileMangerArrs;
+@property(nonatomic,strong)NSMutableArray* fileMangerArrsFromNet;
 @property(nonatomic,strong)MbHUDuser* HudUser;
 @end
 
 @implementation FileMangerViewController
 
+-(NSMutableArray*)fileMangerArrsFromNet{
+    if (!_fileMangerArrsFromNet) {
+        _fileMangerArrsFromNet=[[NSMutableArray alloc]init];
+    }return _fileMangerArrsFromNet;
+}
 -(MbHUDuser*)HudUser{
     if (!_HudUser) {
         _HudUser=[[MbHUDuser alloc]init];
@@ -110,14 +116,127 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    UIBarButtonItem* rightItem=[[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"refresh"] style:UIBarButtonItemStylePlain target:self action:@selector(UpdateFolder)];
+    self.navigationItem.rightBarButtonItem=rightItem;
     // Do any additional setup after loading the view.
     self.navigationItem.title=@"图片备份";
-    self.fileMangerArrs=[NSMutableArray arrayWithArray:[self readDataFromPreference]];
-    //文件夹不为空才展示tableview
-    if (self.fileMangerArrs.count!=0) {
-        [self.view addSubview:self.fileMangerTableView];
+//如果是第一次安装应用，则从网上载入文件夹数据
+    BOOL MangerfirstLoad=[self readIsFirstReachFileManger];
+    //如果数据不存在则从网上导入文件夹数据
+    if (MangerfirstLoad==NO) {
+        BmobQuery* queue=[BmobQuery queryWithClassName:@"PhotosLibrary"];
+        [queue whereKey:@"photosOwner" equalTo:[BmobUser currentUser].username];
+        [queue findObjectsInBackgroundWithBlock:^(NSArray *array, NSError *error) {
+            if (array) {
+                for (BmobObject* obj in array) {
+                    NSString* folderName=[obj objectForKey:@"folder"];
+                    [self.fileMangerArrsFromNet addObject:folderName];
+                }
+                if (self.fileMangerArrsFromNet.count!=0) {
+                    [self.fileMangerArrs addObject:self.fileMangerArrsFromNet[0]];
+                    for (int i=1; i<self.fileMangerArrsFromNet.count; i++) {
+                        int count=0;
+                        for (int j=0; j<i; j++) {
+                            if (self.fileMangerArrsFromNet[i]!=self.fileMangerArrsFromNet[j]) {
+                                count++;
+                            }
+                            if (count==i) {
+                                [self.fileMangerArrs addObject:self.fileMangerArrsFromNet[i]];
+                            }
+                        }
+                    }
+                }
+            }else if (error){
+                NSLog(@"%@",error);
+                [self.HudUser showHUDWithText:@"网络错误" inView:self.view];
+            }
+            //避免多线程问题，延迟一秒进行文件夹的的展示
+            [self performSelector:@selector(loadFileMangerTableView) withObject:nil afterDelay:2];
+            [self writeIsFirstReachFileManger];
+            [self writeDataToPreference];//把网上数据跟新到本地
+        }];
+    }else{
+        //如果不是第一次进入则从本地读取文件夹
+        self.fileMangerArrs=[NSMutableArray arrayWithArray:[self readDataFromPreference]];
+        //文件夹不为空才展示tableview
+        if (self.fileMangerArrs.count!=0) {
+            [self.view addSubview:self.fileMangerTableView];
+        }
     }
 }
+//避免多线程问题，延迟一秒进行文件夹的的展示
+-(void)loadFileMangerTableView{
+   if (self.fileMangerArrs.count!=0) {
+        [self.view addSubview:self.fileMangerTableView];
+   }
+}
+
+
+//切换账号手动刷新网上数据
+-(void)UpdateFolder{
+    //每次更新前都把之前的数组删除掉
+    [self.fileMangerArrs removeAllObjects];
+    [self.fileMangerArrsFromNet removeAllObjects];
+    [self deleteDataFromPreference];
+    
+    BmobQuery* queue=[BmobQuery queryWithClassName:@"PhotosLibrary"];
+    [queue whereKey:@"photosOwner" equalTo:[BmobUser currentUser].username];
+    [queue findObjectsInBackgroundWithBlock:^(NSArray *array, NSError *error) {
+        if (array) {
+            for (BmobObject* obj in array) {
+                NSString* folderName=[obj objectForKey:@"folder"];
+                [self.fileMangerArrsFromNet addObject:folderName];
+            }
+//            NSLog(@"%lu %lu",self.fileMangerArrs.count,self.fileMangerArrsFromNet.count);
+            if (self.fileMangerArrsFromNet.count!=0) {
+                [self.fileMangerArrs addObject:self.fileMangerArrsFromNet[0]];
+                for (int i=1; i<self.fileMangerArrsFromNet.count; i++) {
+                    int count=0;
+                    for (int j=0; j<i; j++) {
+                        if (self.fileMangerArrsFromNet[i]!=self.fileMangerArrsFromNet[j]) {
+                            count++;
+                        }
+                        if (count==i) {
+                            [self.fileMangerArrs addObject:self.fileMangerArrsFromNet[i]];
+                        }
+                    }
+                }
+            }
+        }else if (error){
+            NSLog(@"%@",error);
+            [self.HudUser showHUDWithText:@"网络错误" inView:self.view];
+        }
+        //避免多线程问题，延迟一秒进行文件夹的的展示
+        //[self performSelector:@selector(loadFileMangerTableView) withObject:nil afterDelay:2];
+        if (self.fileMangerArrs.count!=0) {
+            [self.fileMangerTableView reloadData];
+        }else{
+            [self.fileMangerTableView removeFromSuperview];
+        }
+        [self writeDataToPreference];//把网上数据跟新到本地
+    }];
+}
+
+
+
+
+
+
+
+//是否第一次进入文件夹界面，读与写偏好存储设置
+-(BOOL)readIsFirstReachFileManger{
+    NSUserDefaults* UserDefaults=[NSUserDefaults standardUserDefaults];
+    return [UserDefaults boolForKey:@"IsFirstReachFileManger"];
+}
+-(void)writeIsFirstReachFileManger{
+    NSUserDefaults* UserDefaults=[NSUserDefaults standardUserDefaults];
+    [UserDefaults setBool:YES forKey:@"IsFirstReachFileManger"];
+    [UserDefaults synchronize];
+}
+
+
+
+
 //新建文件夹
 - (IBAction)addNewFileManger:(id)sender {
    UIAlertController* NewAlertController=[UIAlertController alertControllerWithTitle:@"输入文件名" message:nil preferredStyle:UIAlertControllerStyleAlert];
@@ -196,6 +315,9 @@
     PhotoBackUpViewController* photoBackUpVc=[self.storyboard instantiateViewControllerWithIdentifier:@"photoBackUpid"];
     photoBackUpVc.VcTitle=self.fileMangerArrs[indexPath.row];
     [self.navigationController pushViewController:photoBackUpVc animated:YES];
+    //点击完cell之后0.5秒取消选择状态，避免难看
+    [self performSelector:@selector(deselect) withObject:nil afterDelay:0.5f];
+    
 }
 
 //文件夹的数据持久化的读与写操作
@@ -215,8 +337,14 @@
 -(void)deleteDataFromPreference{
     NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
     [userDefaults removeObjectForKey:@"localFileMangers"];
+    [userDefaults synchronize];
 }
-
+//取消选中
+- (void)deselect
+{
+    [self.fileMangerTableView deselectRowAtIndexPath:[self.fileMangerTableView indexPathForSelectedRow] animated:YES];
+    
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

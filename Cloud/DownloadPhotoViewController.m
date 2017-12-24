@@ -63,6 +63,7 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self realUpdateDate];
     //[self updateData];//进入视图就进行网上数据更新，避免多线程要顺序执行任务导致无法导入数据
     // Do any additional setup after loading the view.
 }
@@ -142,10 +143,17 @@
     [self.photoTableView removeFromSuperview];
 }
 
-- (IBAction)update:(id)sender {
+-(void)realUpdateDate{
     [self updateData];//网上更新数据
-    [self performSelector:@selector(addTableView) withObject:nil afterDelay:1];//调用self afterDelay方法延迟执行方法
+    if (self.imageUrlArrs.count!=0) {
+        [self performSelector:@selector(addTableView) withObject:nil afterDelay:1];//调用self afterDelay方法延迟执行方法
+    }
     //[NSThread sleepForTimeInterval:1];//调用当前线程睡眠一秒再执行的方法
+}
+
+
+- (IBAction)update:(id)sender {
+    [self realUpdateDate];
 }
 //从网上更新数据
 -(void)updateData{

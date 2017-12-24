@@ -14,6 +14,7 @@
 #import "CloudTabBarController.h"//导入的目的是用登录验证的方式进入子视图，而不是靠点击
 #import "CloudTabBarController.h"
 #import "AppDelegate.h"
+#import "registerVC.h"//导入注册界面类
 @interface ViewController ()<UITextFieldDelegate>{
     CloudTabBarController* cloudTarBar;
     UIScrollView* scrollView;
@@ -47,7 +48,7 @@
     self.passWord.delegate=self;
     self.passWord.secureTextEntry=YES;
     BOOL firstLoad=[self readDataFromPreference];
-    
+    BOOL isLogined=[self readIsLoginedFromPreference];
     if (!firstLoad) {
         scrollView=[[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight)];
         scrollView.contentSize=CGSizeMake(ScreenWidth*4, ScreenHeight);
@@ -63,25 +64,42 @@
         CGFloat btn_w=ScreenWidth*0.6;
         CGFloat btn_h=40;
         CGFloat btn_x=ScreenWidth*3+(ScreenWidth-btn_w)/2;
-        CGFloat btn_y=ScreenHeight-btn_h-40;
+        CGFloat btn_y=ScreenHeight-btn_h-50;
         UIButton* btn_enter=[[UIButton alloc]initWithFrame:CGRectMake(btn_x, btn_y, btn_w, btn_h)];
         [btn_enter setTitle:@"开始使用" forState:UIControlStateNormal];
         [btn_enter setTitleColor:[UIColor yellowColor] forState:UIControlStateNormal];
         btn_enter.layer.cornerRadius=5.0;
         btn_enter.layer.borderWidth=2.0;
-        btn_enter.layer.borderColor=[UIColor colorWithRed:50/255.0 green:195/255.0 blue:170/255.0 alpha:1.0].CGColor;
+        btn_enter.layer.borderColor=[UIColor yellowColor].CGColor;
         [btn_enter addTarget:self action:@selector(enterapp) forControlEvents:UIControlEventTouchUpInside];
         [scrollView addSubview:btn_enter];
         [self.view addSubview:scrollView];
         [self writeDataPreference:YES];
     }
+    if (isLogined==YES) {
+        [self enterHomePage];
+        [self writeIsLoginedInPreference];
+    }
    
 }
 -(void)enterapp{
-//    cloudTarBar=[self.storyboard instantiateViewControllerWithIdentifier:@"zhiyuan_Cloud"];
-//    self.app=(AppDelegate*)[[UIApplication sharedApplication]delegate];
-//    self.app.window.rootViewController=cloudTarBar;
     [scrollView removeFromSuperview];
+}
+
+-(void)enterHomePage{
+    cloudTarBar=[self.storyboard instantiateViewControllerWithIdentifier:@"zhiyuan_Cloud"];
+    self.app=(AppDelegate*)[[UIApplication sharedApplication]delegate];
+    self.app.window.rootViewController=cloudTarBar;
+}
+
+-(void)writeIsLoginedInPreference{
+    NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
+    [userDefaults setBool:YES forKey:@"isLogined"];
+    [userDefaults synchronize];
+}
+-(BOOL)readIsLoginedFromPreference{
+    NSUserDefaults* useDefaults=[NSUserDefaults standardUserDefaults];
+    return [useDefaults boolForKey:@"isLogined"];
 }
 -(void)writeDataPreference:(BOOL)flag{
     NSUserDefaults* userdefaults=[NSUserDefaults standardUserDefaults];
@@ -92,10 +110,6 @@
     NSUserDefaults* userdefaults=[NSUserDefaults standardUserDefaults];
     return [userdefaults boolForKey:@"isFirstLoad"];
 }
-
-
-
-
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     [self.hudUser showHUDWithText:@"你好游客" inView:self.view];
@@ -108,11 +122,8 @@
     [self.passWord resignFirstResponder];
 }
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
-    if (textField.tag==101) {
-        [textField resignFirstResponder];
-    }else if (textField.tag==102){
-        [textField resignFirstResponder];
-    }return YES;
+    [textField resignFirstResponder];
+    return YES;
 }
 //输入框上升
 -(void)textFieldDidBeginEditing:(UITextField *)textField{
@@ -138,34 +149,17 @@
 }
 //注册方法
 - (IBAction)registerAction:(id)sender {
-    BmobUser* newUser=[[BmobUser alloc]init];
-    [newUser setUsername:self.userName.text];//设置用户名
-    [newUser setPassword:self.passWord.text];//设置密码
-    [newUser signUpInBackgroundWithBlock:^(BOOL isSuccessful, NSError *error) {
-        if (isSuccessful) {
-            //NSLog(@"注册成功");
-            [self.hudUser showHUDWithText:@"注册成功" inView:self.view];
-        }else if (error){
-            //NSLog(@"%@",error);
-            [self.hudUser showHUDWithText:@"此用户名已被注册，换个名称注册吧，亲" inView:self.view];
-        }
-    }];
+    registerVC* registervc=[self.storyboard instantiateViewControllerWithIdentifier:@"registerVCID"];
+    [self presentViewController:registervc animated:YES completion:nil];
 }
 //登录方法
 - (IBAction)loginAction:(id)sender {
-    [BmobUser loginWithUsernameInBackground:self.userName.text password:self.passWord.text block:^(BmobUser *user, NSError *error) {
+    [BmobUser loginInbackgroundWithAccount:self.userName.text andPassword:self.passWord.text block:^(BmobUser *user, NSError *error) {
         if (user) {
-            //NSLog(@"登录成功");
             [self.hudUser showHUDWithText:@"登录成功" inView:self.view];
-            //已经用bmob的userdefault方式传递用户名了，不再需要属性传值了
-            //self.localUserName=user.username;
-            //self.localPassword=user.password;
             //同样调用进入子视图的方法
             [self reachToSubVC];
-            NSString *homePath=NSHomeDirectory();
-            NSLog(@"homePath=%@",homePath);
         }else if (error){
-            //NSLog(@"%@",error);
             [self.hudUser showHUDWithText:@"登录名或密码错误，请重试哈，亲" inView:self.view];
         }
     }];
@@ -173,10 +167,8 @@
 //进入子视图的方法
 -(void)reachToSubVC{
     CloudTabBarController* cloudSubVc=[self.storyboard instantiateViewControllerWithIdentifier:@"zhiyuan_Cloud"];
-    //已经用bmob的userdefault方式传递用户名了，不再需要属性传值了
-    //UserInfoVC* infoVc=cloudSubVc.viewControllers[1];
-    //infoVc.nameStr=self.localUserName;
     [self presentViewController:cloudSubVc animated:YES completion:nil];
+    [self writeIsLoginedInPreference];
 }
 
 

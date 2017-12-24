@@ -335,6 +335,13 @@
         [self.imageArrs removeObject:cachedImage];
     }
     [cell checkStated:!currentStated];
+    [self performSelector:@selector(deselect) withObject:nil afterDelay:0.5f];
+}
+//取消选中
+- (void)deselect
+{
+    [self.photoTableView deselectRowAtIndexPath:[self.photoTableView indexPathForSelectedRow] animated:YES];
+    
 }
 -(void)addTableView{
     //文件夹数据不为空，才显示表格，避免难看
@@ -343,6 +350,7 @@
     }
     
 }
+
 ////收起tableview的方法
 //- (IBAction)closeTableView:(id)sender {
 //        [self.photoTableView removeFromSuperview];
@@ -351,7 +359,7 @@
 //自动的刷新操作(真正的刷新操作)
 -(void)realUpdate{
     [self updateData];//网上更新数据
-    [self performSelector:@selector(addTableView) withObject:nil afterDelay:1];//调用self afterDelay方法延迟执行方法
+    [self performSelector:@selector(addTableView) withObject:nil afterDelay:3];//调用self afterDelay方法延迟执行方法
     //[NSThread sleepForTimeInterval:1];//调用当前线程睡眠一秒再执行的方法
 
 }

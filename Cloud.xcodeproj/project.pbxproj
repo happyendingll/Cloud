@@ -22,11 +22,13 @@
 		439559901FC0937800C6FC77 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4395598F1FC0937800C6FC77 /* main.m */; };
 		43BE41651FE3B093007A2348 /* DownloadPhotoTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 43BE41631FE3B093007A2348 /* DownloadPhotoTableViewCell.m */; };
 		43BE41661FE3B093007A2348 /* DownloadPhotoTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 43BE41641FE3B093007A2348 /* DownloadPhotoTableViewCell.xib */; };
+		43C153AE1FEE429B002A9FEF /* userNetInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 43C153AD1FEE429B002A9FEF /* userNetInfo.m */; };
 		43D093FC1FEB55D20083369D /* HomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43D093FB1FEB55D20083369D /* HomeViewController.m */; };
 		43D094021FEBFD7A0083369D /* DownloadPhotoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43D094001FEBFD7A0083369D /* DownloadPhotoViewController.m */; };
 		43E4BD4F1FEC97EF00C6E28F /* FileMangerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 43E4BD4E1FEC97EF00C6E28F /* FileMangerViewController.m */; };
 		43E4BD531FEC9A1200C6E28F /* FileMangerTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 43E4BD511FEC9A1200C6E28F /* FileMangerTableViewCell.m */; };
 		43E4BD541FEC9A1200C6E28F /* FileMangerTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 43E4BD521FEC9A1200C6E28F /* FileMangerTableViewCell.xib */; };
+		43E4BD571FED930E00C6E28F /* registerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 43E4BD561FED930E00C6E28F /* registerVC.m */; };
 		C5FD0C94CA865AED3A969F89 /* libPods-Cloud.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E680A3FF04F40E305A3F3A7C /* libPods-Cloud.a */; };
 /* End PBXBuildFile section */
 
@@ -59,6 +61,8 @@
 		43BE41621FE3B093007A2348 /* DownloadPhotoTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DownloadPhotoTableViewCell.h; sourceTree = "<group>"; };
 		43BE41631FE3B093007A2348 /* DownloadPhotoTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DownloadPhotoTableViewCell.m; sourceTree = "<group>"; };
 		43BE41641FE3B093007A2348 /* DownloadPhotoTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DownloadPhotoTableViewCell.xib; sourceTree = "<group>"; };
+		43C153AC1FEE429B002A9FEF /* userNetInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = userNetInfo.h; sourceTree = "<group>"; };
+		43C153AD1FEE429B002A9FEF /* userNetInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = userNetInfo.m; sourceTree = "<group>"; };
 		43D093FA1FEB55D20083369D /* HomeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HomeViewController.h; sourceTree = "<group>"; };
 		43D093FB1FEB55D20083369D /* HomeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HomeViewController.m; sourceTree = "<group>"; };
 		43D094001FEBFD7A0083369D /* DownloadPhotoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadPhotoViewController.m; sourceTree = "<group>"; };
@@ -68,6 +72,8 @@
 		43E4BD501FEC9A1200C6E28F /* FileMangerTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileMangerTableViewCell.h; sourceTree = "<group>"; };
 		43E4BD511FEC9A1200C6E28F /* FileMangerTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileMangerTableViewCell.m; sourceTree = "<group>"; };
 		43E4BD521FEC9A1200C6E28F /* FileMangerTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FileMangerTableViewCell.xib; sourceTree = "<group>"; };
+		43E4BD551FED930E00C6E28F /* registerVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = registerVC.h; sourceTree = "<group>"; };
+		43E4BD561FED930E00C6E28F /* registerVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = registerVC.m; sourceTree = "<group>"; };
 		C4C759DB49A3E8533761246B /* Pods-Cloud.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Cloud.release.xcconfig"; path = "Pods/Target Support Files/Pods-Cloud/Pods-Cloud.release.xcconfig"; sourceTree = "<group>"; };
 		E680A3FF04F40E305A3F3A7C /* libPods-Cloud.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Cloud.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -157,6 +163,10 @@
 				43E4BD501FEC9A1200C6E28F /* FileMangerTableViewCell.h */,
 				43E4BD511FEC9A1200C6E28F /* FileMangerTableViewCell.m */,
 				43E4BD521FEC9A1200C6E28F /* FileMangerTableViewCell.xib */,
+				43E4BD551FED930E00C6E28F /* registerVC.h */,
+				43E4BD561FED930E00C6E28F /* registerVC.m */,
+				43C153AC1FEE429B002A9FEF /* userNetInfo.h */,
+				43C153AD1FEE429B002A9FEF /* userNetInfo.m */,
 			);
 			path = Cloud;
 			sourceTree = "<group>";
@@ -296,6 +306,8 @@
 				4388813A1FE0FB0F00C220F1 /* PhotoBackUpViewController.m in Sources */,
 				439559901FC0937800C6FC77 /* main.m in Sources */,
 				43E4BD531FEC9A1200C6E28F /* FileMangerTableViewCell.m in Sources */,
+				43C153AE1FEE429B002A9FEF /* userNetInfo.m in Sources */,
+				43E4BD571FED930E00C6E28F /* registerVC.m in Sources */,
 				4388813D1FE0FDCE00C220F1 /* PhotoCollectionViewCell.m in Sources */,
 				43BE41651FE3B093007A2348 /* DownloadPhotoTableViewCell.m in Sources */,
 				438CB9441FEA9D39007C5C21 /* DeviceScreen.m in Sources */,

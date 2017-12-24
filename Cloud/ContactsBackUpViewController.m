@@ -131,9 +131,10 @@
         CNContactStore* store=[[CNContactStore alloc]init];
         [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
             if (granted) {
-                NSLog(@"授权成功");
+//                NSLog(@"授权成功");
+                [self loadDataFromLocal];
             }else{
-                NSLog(@"授权失败");
+//                NSLog(@"授权失败");
             }
         }];
     }
