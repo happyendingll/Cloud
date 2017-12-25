@@ -72,15 +72,19 @@
 -(void)longPressAction:(UILongPressGestureRecognizer*)sender{
     if (sender.state==UIGestureRecognizerStateBegan) {
         NSIndexPath* indexPath=[self.fileMangerTableView indexPathForRowAtPoint:[sender locationInView:self.fileMangerTableView]];
+        NSString* oldName=self.fileMangerArrs[indexPath.row];
         UIAlertController* reNameAlertController=[UIAlertController alertControllerWithTitle:@"重命名" message:nil preferredStyle:UIAlertControllerStyleAlert];
         [reNameAlertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
             textField.placeholder=@"文件名";
         }];
         UIAlertAction* okAction=[UIAlertAction actionWithTitle:@"完成" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             UITextField* FileNameField=reNameAlertController.textFields.firstObject;
-            [self.fileMangerArrs replaceObjectAtIndex:indexPath.row withObject:FileNameField.text];
+            NSString* newName=FileNameField.text;
+            [self.fileMangerArrs replaceObjectAtIndex:indexPath.row withObject:newName];
             [self writeDataToPreference];//写入用户偏好存储
             [self.fileMangerTableView reloadData];//点击完成刷新数据
+            //网上更新数据如果该目录下有文件，则修改其归属文件名
+            [self upDatefolderWithOldName:oldName andNewName:newName];
         }];
         [reNameAlertController addAction:okAction];
         UIAlertAction* cancelAction=[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
@@ -88,6 +92,30 @@
         [self presentViewController:reNameAlertController animated:YES completion:nil];
     }
 }
+
+//网上更新数据如果该目录下有文件，则修改其归属文件名
+-(void)upDatefolderWithOldName:(NSString*)oldName andNewName:(NSString*)newName{
+    BmobQuery* queue=[BmobQuery queryWithClassName:@"PhotosLibrary"];
+    [queue whereKey:@"photosOwner" equalTo:[[BmobUser currentUser]username]];
+    [queue whereKey:@"folder" equalTo:oldName];
+    [queue findObjectsInBackgroundWithBlock:^(NSArray *array, NSError *error) {
+        if (array) {
+            for (BmobObject* obj in array) {
+                [obj setObject:newName forKey:@"folder"];
+                [obj updateInBackground];
+            }
+        }else if(error){
+            NSLog(@"%@",error);
+        }
+    }];
+}
+
+
+
+
+
+
+
 //增加重命名方法（改用长按重命名）
 //-(void)reNameAction:(UIButton*)btn{
 //   UIAlertController* reNameAlertController=[UIAlertController alertControllerWithTitle:@"重命名" message:nil preferredStyle:UIAlertControllerStyleAlert];
@@ -178,7 +206,7 @@
     [self.fileMangerArrs removeAllObjects];
     [self.fileMangerArrsFromNet removeAllObjects];
     [self deleteDataFromPreference];
-    
+    [NSThread sleepForTimeInterval:1];
     BmobQuery* queue=[BmobQuery queryWithClassName:@"PhotosLibrary"];
     [queue whereKey:@"photosOwner" equalTo:[BmobUser currentUser].username];
     [queue findObjectsInBackgroundWithBlock:^(NSArray *array, NSError *error) {
