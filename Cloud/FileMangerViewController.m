@@ -221,7 +221,7 @@
                 for (int i=1; i<self.fileMangerArrsFromNet.count; i++) {
                     int count=0;
                     for (int j=0; j<i; j++) {
-                        if (self.fileMangerArrsFromNet[i]!=self.fileMangerArrsFromNet[j]) {
+                        if (![self.fileMangerArrsFromNet[i] isEqualToString:self.fileMangerArrsFromNet[j]]) {
                             count++;
                         }
                         if (count==i) {
